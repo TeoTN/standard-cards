@@ -195,15 +195,29 @@ export class TabsCard extends ScopedElementsMixin(LitElement) {
         display: flex;
         flex-direction: column;
         gap: 16px;
+        max-width: 100%;
+        max-height: 100%;
+        overflow: hidden;
       }
     `;
   }
 
-  public getGridOptions() {
+  public async getGridOptions() {
+    const size = await this.getCardSize();
     return {
       columns: 'full',
-      rows: 2,
+      rows: size,
     };
+  }
+
+  public async getCardSize(): Promise<number> {
+    const TAB_BAR_HEIGHT = 2;
+    const activeTab = this.config.tabs[this.selectedTabIndex];
+    const currentCard = activeTab ? this.cardElements[activeTab.id] : null;
+    const cardSize = currentCard && 'getCardSize' in currentCard
+      ? (await currentCard.getCardSize?.()) ?? 1
+      : 1;
+    return TAB_BAR_HEIGHT + cardSize;
   }
 }
 
