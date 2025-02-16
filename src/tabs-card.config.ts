@@ -62,6 +62,6 @@ export const getInitialConfig = (): TabsCardConfig => {
 }
 
 export const tabFormSchema = [
-  { name: "id", selector: { text: {} } },
+  { name: "id", selector: { text: {} }, disabled: true },
   { name: "label", selector: { text: {} } },
 ] as const satisfies readonly HaFormSchema[];
