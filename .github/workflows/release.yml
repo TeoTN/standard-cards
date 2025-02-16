@@ -30,4 +30,4 @@ jobs:
       - name: Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/hearth-cards--tabs.js
+          files: dist/standard-tabs-card.js
