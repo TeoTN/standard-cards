@@ -23,4 +23,5 @@ export interface BoilerplateCardConfig extends LovelaceCardConfig {
 
 export interface LovelaceCardHelpers {
   createCardElement(config: LovelaceCardConfig): Promise<LovelaceCard>;
+  importMoreInfoControl(type: string): Promise<void>;
 }

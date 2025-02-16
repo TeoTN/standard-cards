@@ -88,6 +88,10 @@ export class TabsCard extends LitElement {
 
     getWindow().loadCardHelpers().then(helpers => {
       this.helpers = helpers;
+      if (!customElements.get("mwc-tab-bar")) {
+        // Trick to import `mwc-tab-bar` and `mwc-bar` without build tools shenanigans
+        helpers.importMoreInfoControl("weather")
+      }
     });
   }
 
