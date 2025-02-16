@@ -59,13 +59,6 @@ export default defineConfig({
     },
     outDir: 'dist',
     rollupOptions: {
-      external: [
-        /^lit/,
-        /^@lit-labs\//,
-        'custom-card-helpers',
-        'home-assistant-js-websocket',
-        'superstruct',
-      ],
       output: {
         inlineDynamicImports: true,
         format: 'es',
@@ -85,9 +78,5 @@ export default defineConfig({
         useDefineForClassFields: false, // enable legacy decorator behavior
       },
     },
-  },
-  optimizeDeps: {
-    include: ['lit', '@lit-labs/scoped-registry-mixin'],
-    exclude: ['custom-card-helpers', 'home-assistant-js-websocket'],
   },
 });
