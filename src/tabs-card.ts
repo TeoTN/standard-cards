@@ -1,14 +1,12 @@
 import {
   getLovelace,
+  hasConfigOrEntityChanged,
   HomeAssistant,
   LovelaceCard,
   LovelaceCardEditor
 } from 'custom-card-helpers';
-import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
+import { css, CSSResultGroup, html, LitElement, nothing, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { ScopedElementsMixin } from '@open-wc/scoped-elements/html-element.js';
-import { TabBase as MwcTab } from '@material/mwc-tab/mwc-tab-base.js';
-import { TabBarBase as MwcTabBar } from '@material/mwc-tab-bar/mwc-tab-bar-base.js';
 import { TABS_CARD_EDITOR_TAG_NAME, TABS_CARD_NAME, TABS_CARD_TAG_NAME } from './constants';
 import { localize } from './localize/localize';
 import { getInitialConfig, Tab, TabsCardConfig } from './tabs-card.config';
@@ -49,12 +47,9 @@ const waitUntil = <T>(getter: () => any, predicate: (value: T) => boolean): Prom
 };
 
 @customElement(TABS_CARD_TAG_NAME)
-export class TabsCard extends ScopedElementsMixin(LitElement) {
-  static scopedElements = {
-    'mwc-tab-bar': MwcTabBar,
-    'mwc-tab': MwcTab,
-  };
-
+export class TabsCard extends LitElement {
+  // TODO Add any properities that should cause your element to re-render here
+  // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass!: HomeAssistant;
 
   @state() private cardElements: Record<string, LovelaceCard> = {};
@@ -220,5 +215,3 @@ export class TabsCard extends ScopedElementsMixin(LitElement) {
     return TAB_BAR_HEIGHT + cardSize;
   }
 }
-
-

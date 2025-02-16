@@ -90,9 +90,4 @@ export default defineConfig({
     include: ['lit', '@lit-labs/scoped-registry-mixin'],
     exclude: ['custom-card-helpers', 'home-assistant-js-websocket'],
   },
-  resolve: {
-    alias: {
-      '@material/mwc-ripple/mwc-ripple.js': resolve(__dirname, 'src/shims/mwc-ripple.js'),
-    },
-  },
 });

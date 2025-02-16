@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
+import { LitElement, html, TemplateResult, css, CSSResultGroup, PropertyValues } from 'lit';
 import { HomeAssistant, LovelaceCardEditor, LovelaceConfig } from 'custom-card-helpers';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
