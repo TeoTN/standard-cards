@@ -1,5 +1,7 @@
 {
-  "name": "Standard Tabs Card",
+  "name": "Standard Cards - Tabs",
+  "category": "plugin",
   "render_readme": true,
-  "filename": "tabs-card.js"
+  "domains": ["lovelace"],
+  "javascript_url": "tabs-card.js"
 }

@@ -45,6 +45,7 @@
     "dev": "vite dev",
     "build": "yarn lint && vite build",
     "lint": "eslint src/*.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "yarn build && sh create-release.sh"
   }
 }
