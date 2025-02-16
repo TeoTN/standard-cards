@@ -17,6 +17,9 @@
   "license": "MIT",
   "dependencies": {
     "@lit-labs/scoped-registry-mixin": "^1.0.0",
+    "@material/mwc-tab": "^0.27.0",
+    "@material/mwc-tab-bar": "^0.27.0",
+    "@open-wc/scoped-elements": "^3.0.5",
     "custom-card-helpers": "^1.9.0",
     "home-assistant-js-websocket": "^5.11.1",
     "lit": "^3.2.1",
