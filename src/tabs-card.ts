@@ -1,11 +1,10 @@
 import {
   getLovelace,
-  hasConfigOrEntityChanged,
   HomeAssistant,
   LovelaceCard,
   LovelaceCardEditor
 } from 'custom-card-helpers';
-import { css, CSSResultGroup, html, LitElement, nothing, PropertyValues, TemplateResult } from 'lit';
+import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { TABS_CARD_EDITOR_TAG_NAME, TABS_CARD_NAME, TABS_CARD_TAG_NAME } from './constants';
 import { localize } from './localize/localize';
@@ -28,7 +27,7 @@ const handleError = (error: Error) => {
   console.error(error);
 };
 
-const waitUntil = <T>(getter: () => any, predicate: (value: T) => boolean): Promise<void> => {
+const waitUntil = <T>(getter: () => T, predicate: (value: T) => boolean): Promise<void> => {
   const value = getter();
   const { promise, resolve } = getDeferred<void>();
   let interval = 0;
