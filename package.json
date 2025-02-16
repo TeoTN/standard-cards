@@ -1,5 +1,5 @@
 {
-  "name": "standard-tabs-card",
+  "name": "standard-card-tabs",
   "version": "0.0.1-3",
   "description": "Lovelace Standard Tabs Card",
   "keywords": [
@@ -11,8 +11,8 @@
     "custom-cards"
   ],
   "type": "module",
-  "main": "src/standard-tabs-card.ts",
-  "repository": "git@github.com:TeoTN/standard-tabs-card.git",
+  "main": "src/standard-card-tabs.ts",
+  "repository": "git@github.com:TeoTN/standard-card-tabs.git",
   "author": "Piotr Staniów",
   "license": "MIT",
   "dependencies": {

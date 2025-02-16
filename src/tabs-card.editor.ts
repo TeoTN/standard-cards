@@ -10,7 +10,7 @@ import { LovelaceCardHelpers } from './types';
 import { getWindow } from './utils/get-window';
 
 @customElement(TABS_CARD_EDITOR_TAG_NAME)
-export class StandardTabsCardEditor extends LitElement implements LovelaceCardEditor {
+export class StandardCardTabsEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
   @property({ attribute: false }) public lovelace?: LovelaceConfig;
 

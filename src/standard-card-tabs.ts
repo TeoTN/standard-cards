@@ -46,7 +46,7 @@ const waitUntil = <T>(getter: () => T, predicate: (value: T) => boolean): Promis
 };
 
 @customElement(TABS_CARD_TAG_NAME)
-export class TabsCard extends LitElement {
+export class StandardCardTabs extends LitElement {
   // TODO Add any properities that should cause your element to re-render here
   // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass!: HomeAssistant;
