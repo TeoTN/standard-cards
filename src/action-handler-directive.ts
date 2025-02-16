@@ -6,10 +6,12 @@ import { fireEvent } from 'custom-card-helpers';
 
 const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.maxTouchPoints > 0;
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 interface ActionHandler extends HTMLElement {
   holdTime: number;
   bind(element: Element, options): void;
 }
+
 interface ActionHandlerElement extends HTMLElement {
   actionHandler?: boolean;
 }
@@ -20,6 +22,7 @@ declare global {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 class ActionHandler extends HTMLElement implements ActionHandler {
   public holdTime = 500;
 
@@ -192,7 +195,7 @@ export const actionHandler = directive(
       return noChange;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    render(_options?: ActionHandlerOptions) {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    render(_options?: ActionHandlerOptions) { }
   },
 );

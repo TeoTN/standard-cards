@@ -1,13 +1,14 @@
 import { ActionConfig, LovelaceCard, LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
+import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'boilerplate-card-editor': LovelaceCardEditor;
+    [TABS_CARD_EDITOR_TAG_NAME]: LovelaceCardEditor;
     'hui-error-card': LovelaceCard;
   }
 }
 
-// TODO Add your configuration elements here for type-checking
+// TODO Merge into the card config
 export interface BoilerplateCardConfig extends LovelaceCardConfig {
   type: string;
   name?: string;
@@ -18,4 +19,8 @@ export interface BoilerplateCardConfig extends LovelaceCardConfig {
   tap_action?: ActionConfig;
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;
+}
+
+export interface LovelaceCardHelpers {
+  createCardElement(config: LovelaceCardConfig): Promise<LovelaceCard>;
 }

@@ -1,5 +1,5 @@
 {
-    "name": "Boilerplate Card",
-    "render_readme": true,
-    "filename": "boilerplate-card.js"
+  "name": "Standard Tabs Card",
+  "render_readme": true,
+  "filename": "tabs-card.js"
 }
