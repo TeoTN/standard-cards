@@ -3,5 +3,5 @@
   "category": "plugin",
   "render_readme": true,
   "domains": ["lovelace"],
-  "javascript_url": "tabs-card.js"
+  "javascript_url": "standard-tabs-card.js"
 }

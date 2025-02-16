@@ -11,7 +11,7 @@
     "custom-cards"
   ],
   "type": "module",
-  "main": "src/tabs-card.ts",
+  "main": "src/standard-tabs-card.ts",
   "repository": "git@github.com:TeoTN/standard-tabs-card.git",
   "author": "Piotr Staniów",
   "license": "MIT",
