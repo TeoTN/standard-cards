@@ -13,7 +13,7 @@ import { getWindow } from './utils/get-window';
 import { registerCustomCard } from './utils/register-card';
 import { LovelaceCardHelpers } from './types';
 import { printVersion } from './utils/print-version';
-import { getDeferred } from './utils/getDeferred';
+import { getDeferred } from './utils/get-deferred';
 
 printVersion();
 

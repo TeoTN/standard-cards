@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
-import { HomeAssistant, LovelaceCardEditor, LovelaceConfig } from 'custom-card-helpers';
+import { HomeAssistant, LovelaceCard, LovelaceCardConfig, LovelaceCardEditor, LovelaceConfig } from 'custom-card-helpers';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
 import { Tab, tabFormSchema, Tabs, TabsCardConfig, tabsCardConfigStruct } from './tabs-card.config';
@@ -8,6 +8,8 @@ import { assert } from 'superstruct';
 import { getUniqueId } from './utils/get-unique-id';
 import { LovelaceCardHelpers } from './types';
 import { getWindow } from './utils/get-window';
+import { loadHuiCardPicker } from './utils/load-hui-card-picker';
+
 
 @customElement(TABS_CARD_EDITOR_TAG_NAME)
 export class StandardCardTabsEditor extends LitElement implements LovelaceCardEditor {
@@ -15,6 +17,7 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
   @property({ attribute: false }) public lovelace?: LovelaceConfig;
 
   @state() private config?: TabsCardConfig;
+  @state() private initialized = false;
   @state() private helpers?: LovelaceCardHelpers;
   @state() private selectedTabIndex = -1;
   @state() private guiMode = true;
@@ -25,13 +28,20 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
 
   public connectedCallback() {
     super.connectedCallback();
-    if (this.helpers) {
+    if (this.initialized) {
       return;
     }
 
-    getWindow().loadCardHelpers().then(helpers => {
-      this.helpers = helpers;
+    this.initialize().then(() => {
+      this.initialized = true;
     });
+  }
+
+  private async initialize() {
+    const helpers = await getWindow().loadCardHelpers();
+    this.helpers = helpers;
+    await loadHuiCardPicker(helpers);
+    this.initialized = true;
   }
 
   public setConfig(config: TabsCardConfig): void {
@@ -47,8 +57,8 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     return this.config?.show_error || false;
   }
 
-  protected render(): TemplateResult | void {
-    if (!this.hass || !this.helpers) {
+  protected render(): TemplateResult {
+    if (!this.hass || !this.initialize) {
       return html``;
     }
 
@@ -102,7 +112,7 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
 
     const huiCardPicker = customElements.get("hui-card-picker");
     if (!huiCardPicker) {
-      console.warn("hui-card-picker is not defined");
+      console.warn("hui-card-picker is not defined")
     }
 
     return html`
@@ -153,7 +163,6 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     this.hass!.localize(`ui.panel.lovelace.editor.card.tabs.${schema.name}`);
 
   private onSelectedTabChanged(ev: CustomEvent): void {
-    console.log('onSelectedTabChanged', ev.detail.value);
     if (typeof ev.detail.value !== 'number') {
       return;
     }
