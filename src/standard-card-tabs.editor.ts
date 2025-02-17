@@ -100,9 +100,10 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     const tabs: Tabs = this.config?.tabs ?? [];
     const index = tabs.length;
 
-    console.log('hass', this.hass);
-    console.log('lovelace', this.lovelace);
-    console.log('index', index);
+    const huiCardPicker = customElements.get("hui-card-picker");
+    if (!huiCardPicker) {
+      console.warn("hui-card-picker is not defined");
+    }
 
     return html`
       <h2>New Tab</h2>

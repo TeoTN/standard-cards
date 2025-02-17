@@ -57,7 +57,7 @@ export class StandardCardTabs extends LitElement {
   @state() private selectedTabIndex = 0;
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import('./tabs-card.editor.js');
+    await import('./standard-card-tabs.editor.js');
     return document.createElement(TABS_CARD_EDITOR_TAG_NAME) as LovelaceCardEditor;
   }
 
