@@ -14,6 +14,8 @@ import { registerCustomCard } from './utils/register-card';
 import { LovelaceCardHelpers } from './types';
 import { printVersion } from './utils/print-version';
 import { getDeferred } from './utils/get-deferred';
+import './components/tabs';
+import './components/tab';
 
 printVersion();
 
@@ -130,22 +132,20 @@ export class StandardCardTabs extends LitElement {
 
   private toolbarTemplate(tabs: ReadonlyArray<Tab>): TemplateResult {
     return html`
-      <mwc-tab-bar
-        activeIndex=${this.selectedTabIndex}
-        @MDCTabBar:activated=${this.onTabActivated}
+      <std-ui-tabs
+        .activeIndex=${this.selectedTabIndex}
+        @selected=${this.onTabActivated}
       >
         ${tabs.map((tab) => html`
-          <mwc-tab label="${tab.label}"></mwc-tab>
+          <std-ui-tab>${tab.label}</std-ui-tab>
         `)}
-      </mwc-tab-bar>
+      </std-ui-tabs>
     `;
   }
 
   private onTabActivated(e: CustomEvent) {
-    if (typeof e.detail?.index !== 'number') {
-      return;
-    }
-    this.selectedTabIndex = e.detail.index;
+    const index = e.detail.index;
+    this.selectedTabIndex = index;
     const currentTab = this.config.tabs[this.selectedTabIndex];
     if (!currentTab) {
       return;
@@ -196,6 +196,10 @@ export class StandardCardTabs extends LitElement {
         max-width: 100%;
         max-height: 100%;
         overflow: hidden;
+      }
+
+      .tab-body {
+        width: 100%;
       }
     `;
   }
