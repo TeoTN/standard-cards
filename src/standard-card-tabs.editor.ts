@@ -9,7 +9,14 @@ import { getUniqueId } from './utils/get-unique-id';
 import { LovelaceCardHelpers } from './types';
 import { getWindow } from './utils/get-window';
 import { loadHuiCardPicker } from './utils/load-hui-card-picker';
-
+import {
+  mdiCodeBraces,
+  mdiContentCopy,
+  mdiContentCut,
+  mdiDelete,
+  mdiListBoxOutline,
+  mdiPlus,
+} from "@mdi/js";
 
 @customElement(TABS_CARD_EDITOR_TAG_NAME)
 export class StandardCardTabsEditor extends LitElement implements LovelaceCardEditor {
@@ -63,9 +70,11 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     }
 
     return html`
-      ${this.toolbarTemplate()}
-      <div class="editor">
-        ${this.editorTemplate()}
+      <div class="standard-card-tabs-editor">
+        ${this.toolbarTemplate()}
+        <div class="editor">
+          ${this.editorTemplate()}
+        </div>
       </div>
     `;
   }
@@ -116,7 +125,7 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     }
 
     return html`
-      <h2>New Tab</h2>
+      ${this.cardToolbarTemplate('New Tab')}
       <ha-form
         .hass=${this.hass}
         .data=${this.newTabSkeleton}
@@ -124,22 +133,19 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
         .computeLabel=${this.computeFormLabelCallback}
         @value-changed=${this.onTabFormValueChanged}
       ></ha-form>
-      <hui-card-picker
-        .hass=${this.hass}
-        .lovelace=${this.lovelace}
-        @config-changed=${e => this.onTabCardChanged(e, index)}
-      ></hui-card-picker>
+      <div class="card-config">
+        <hui-card-picker
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          @config-changed=${e => this.onTabCardChanged(e, index)}
+        ></hui-card-picker>
+      </div>
     `;
   }
 
   protected editTabTemplate(tab: Tab): TemplateResult {
     return html`
-      <h2>Edit Tab</h2>
-      <div class="tab-toolset">
-        <mwc-button @click=${() => this.onRemoveTab(this.selectedTabIndex)}>
-          Remove Tab
-        </mwc-button>
-      </div>
+      ${this.cardToolbarTemplate('Edit Tab')}
       <ha-form
         .hass=${this.hass}
         .data=${tab}
@@ -152,11 +158,44 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
           .hass=${this.hass}
           .lovelace=${this.lovelace}
           .value=${tab.card}
+          .GUImode=${this.guiMode}
           @GUImode-changed=${this.onGuiModeChanged}
           @config-changed=${e => this.onTabCardChanged(e, this.selectedTabIndex)}
         ></hui-card-element-editor>
       </div>  
     `;
+  }
+
+  protected cardToolbarTemplate(title: string): TemplateResult {
+    return html`
+      <div class="card-toolbar">
+        <h3>${title}</h3>
+        <ha-icon-button
+          class="gui-mode-button"
+          @click=${this.onToggleMode}
+          .disabled=${!this.guiModeAvailable}
+          .label=${this.hass!.localize(
+            this.guiMode
+              ? "ui.panel.lovelace.editor.edit_card.show_code_editor"
+              : "ui.panel.lovelace.editor.edit_card.show_visual_editor"
+          )}
+          .path=${this.guiMode ? mdiCodeBraces : mdiListBoxOutline}
+        ></ha-icon-button>
+        <div class="spacer"></div>
+        <ha-icon-button
+          class="remove-tab-button"
+          @click=${this.onRemoveTab}
+          .label=${this.hass!.localize(
+            "ui.panel.lovelace.editor.edit_card.delete"
+          )}
+          .path=${mdiDelete}
+        ></ha-icon-button>
+      </div>
+    `;
+  }
+
+  protected onToggleMode(): void {
+    this.guiMode = !this.guiMode;
   }
 
   protected computeFormLabelCallback = (schema: { name: string }): string =>
@@ -202,22 +241,24 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     if (!this.config) return;
 
     const tabs = [...this.config.tabs];
+    const isNewCard = index === tabs.length;
     const tab = tabs[index] || this.newTabSkeleton;
     tabs[index] = { ...tab, card: ev.detail.config };
 
+    this.guiModeAvailable = ev.detail.guiModeAvailable;
     this.selectedTabIndex = index;
     this.config = { ...this.config, tabs };
     this.notifyConfigChanged();
   }
 
-  private onRemoveTab(index: number): void {
+  private onRemoveTab(): void {
     const { tabs = [] } = this.config || { tabs: [] };
     if (tabs.length === 0) {
       return;
     }
 
     const updatedTabs = [...tabs];
-    updatedTabs.splice(index, 1);
+    updatedTabs.splice(this.selectedTabIndex, 1);
 
     this.config = { ...this.config!, tabs: updatedTabs };
     this.selectedTabIndex = -1;
@@ -241,6 +282,25 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
   }
 
   static styles: CSSResultGroup = css`
-  
+    .standard-card-tabs-editor,
+    .standard-card-tabs-editor .editor {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-toolbar {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    
+    .card-toolbar .spacer {
+      flex-grow: 1;
+    }
+    
+    .card-toolbar :not(.spacer) {
+      flex-grow: 0;
+    }
   `;
 }
