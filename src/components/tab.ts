@@ -15,6 +15,8 @@ export class StdUiTab extends LitElement {
       height: 3rem;
       border-radius: 1.5rem;
       min-width: 80px;
+      width: fit-content;
+      text-wrap: nowrap;
       font-size: 1rem;
       font-weight: 500;
       line-height: 1.25;

@@ -75,6 +75,7 @@ export class StdUiTabs extends LitElement {
     :host {
       display: block;
       border-radius: 1.5rem;
+      max-width: 100%;
       width: fit-content;
       height: 3rem;
       margin: 0 auto 1rem auto;
@@ -84,12 +85,13 @@ export class StdUiTabs extends LitElement {
 
     .tabs {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start; /* Changed from center to flex-start */
       overflow-x: auto;
       scrollbar-width: none;
       position: relative;
       z-index: 1;
       gap: 0.5rem;
+      max-width: 100%;
     }
 
     .tabs::-webkit-scrollbar {
