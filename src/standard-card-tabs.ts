@@ -51,7 +51,20 @@ const waitUntil = <T>(getter: () => T, predicate: (value: T) => boolean): Promis
 export class StandardCardTabs extends LitElement {
   // TODO Add any properities that should cause your element to re-render here
   // https://lit.dev/docs/components/properties/
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  private _hass?: HomeAssistant;
+
+  @property({ attribute: false })
+  public get hass(): HomeAssistant {
+    return this._hass!;
+  }
+
+  public set hass(value: HomeAssistant) {
+    this._hass = value;
+    // Update all child cards when hass changes
+    Object.values(this.cardElements).forEach((card) => {
+      card.hass = value;
+    });
+  }
 
   @state() private cardElements: Record<string, LovelaceCard> = {};
   @state() private helpers: LovelaceCardHelpers | null = null;
