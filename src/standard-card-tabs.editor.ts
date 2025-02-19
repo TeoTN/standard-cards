@@ -262,7 +262,11 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     if (!this.config || ev.detail.value === undefined) return;
 
     if (this.selectedTabIndex === this.config.tabs.length) {
-      // We're editing a new tab, don't update config yet
+      // We're editing a new tab, update the skeleton
+      this.newTabSkeleton = {
+        ...this.newTabSkeleton,
+        ...ev.detail.value
+      };
       return;
     }
 
@@ -288,8 +292,13 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
 
     const tabs = [...this.config.tabs];
     const isNewCard = index === tabs.length;
-    const tab = tabs[index] || this.newTabSkeleton;
-    tabs[index] = { ...tab, card: ev.detail.config };
+    
+    if (isNewCard) {
+      // Create new tab using the current newTabSkeleton values
+      tabs.push({ ...this.newTabSkeleton, card: ev.detail.config });
+    } else {
+      tabs[index] = { ...tabs[index], card: ev.detail.config };
+    }
 
     this.guiModeAvailable = ev.detail.guiModeAvailable;
     this.selectedTabIndex = index;
