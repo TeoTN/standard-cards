@@ -10,9 +10,12 @@ fi
 # Retrieve the latest tag. If none exists, show "None".
 latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "None")
 
-# Prompt for desired version and release message, showing newest tag
+# Prompt for desired version, showing newest tag
 read -p "Enter new version (latest: ${latest_tag}): " new_version
-read -p "Enter release message: " release_message
+
+# Collect multiline release message
+echo "Enter release message (press Ctrl+D or Cmd+D when done):"
+release_message=$(cat)
 
 # Strip leading "v" from the version for package.json update.
 version_for_package="${new_version#v}"
