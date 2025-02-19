@@ -16,6 +16,8 @@ import {
   mdiDelete,
   mdiListBoxOutline,
   mdiPlus,
+  mdiChevronLeft,
+  mdiChevronRight,
 } from "@mdi/js";
 
 @customElement(TABS_CARD_EDITOR_TAG_NAME)
@@ -167,6 +169,9 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
   }
 
   protected cardToolbarTemplate(title: string): TemplateResult {
+    const tabs = this.config?.tabs ?? [];
+    const showMoveButtons = tabs.length > 1 && this.selectedTabIndex >= 0 && this.selectedTabIndex < tabs.length;
+
     return html`
       <div class="card-toolbar">
         <h3>${title}</h3>
@@ -182,6 +187,20 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
           .path=${this.guiMode ? mdiCodeBraces : mdiListBoxOutline}
         ></ha-icon-button>
         <div class="spacer"></div>
+        ${showMoveButtons ? html`
+          <ha-icon-button
+            class="move-left-button"
+            @click=${this.onMoveTabLeft}
+            .label="Move tab left"
+            .path=${mdiChevronLeft}
+          ></ha-icon-button>
+          <ha-icon-button
+            class="move-right-button"
+            @click=${this.onMoveTabRight}
+            .label="Move tab right"
+            .path=${mdiChevronRight}
+          ></ha-icon-button>
+        ` : ''}
         <ha-icon-button
           class="remove-tab-button"
           @click=${this.onRemoveTab}
@@ -192,6 +211,36 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
         ></ha-icon-button>
       </div>
     `;
+  }
+
+  private onMoveTabLeft(): void {
+    if (!this.config || this.selectedTabIndex < 0) return;
+    
+    const tabs = [...this.config.tabs];
+    const newIndex = this.selectedTabIndex === 0 ? tabs.length - 1 : this.selectedTabIndex - 1;
+    const tab = tabs[this.selectedTabIndex];
+    
+    tabs.splice(this.selectedTabIndex, 1);
+    tabs.splice(newIndex, 0, tab);
+    
+    this.config = { ...this.config, tabs };
+    this.selectedTabIndex = newIndex;
+    this.notifyConfigChanged();
+  }
+
+  private onMoveTabRight(): void {
+    if (!this.config || this.selectedTabIndex < 0) return;
+    
+    const tabs = [...this.config.tabs];
+    const newIndex = this.selectedTabIndex === tabs.length - 1 ? 0 : this.selectedTabIndex + 1;
+    const tab = tabs[this.selectedTabIndex];
+    
+    tabs.splice(this.selectedTabIndex, 1);
+    tabs.splice(newIndex, 0, tab);
+    
+    this.config = { ...this.config, tabs };
+    this.selectedTabIndex = newIndex;
+    this.notifyConfigChanged();
   }
 
   protected onToggleMode(): void {
