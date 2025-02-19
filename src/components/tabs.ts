@@ -69,6 +69,7 @@ export class StdUiTabs extends LitElement {
     }
 
     this.updateIndicator(activeTab);
+    activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); // Scroll the active tab into view
   }
 
   static styles = css`
@@ -91,7 +92,7 @@ export class StdUiTabs extends LitElement {
       scrollbar-width: none;
       position: relative;
       z-index: 1;
-      gap: 0.5rem;
+      gap: 0rem;
       max-width: 100%;
       border-radius: inherit; /* Ensure the tabs container inherits the border radius */
       clip-path: inset(0 round 1.5rem); /* Use clip-path to mask the indicator */

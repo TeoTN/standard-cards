@@ -14,8 +14,7 @@ export class StdUiTab extends LitElement {
       justify-content: center;
       height: 3rem;
       border-radius: 1.5rem;
-      min-width: 80px;
-      width: fit-content;
+      width: auto; /* Change width to auto */
       text-wrap: nowrap;
       font-size: 1rem;
       font-weight: 500;
@@ -39,4 +38,4 @@ export class StdUiTab extends LitElement {
   render() {
     return html`<slot></slot>`;
   }
-} 
+}
