@@ -171,7 +171,7 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
 
     return html`
       <div class="card-toolbar">
-        <h3>${title}</h3>
+        <h3 class="view-title">${title}</h3>
         <ha-icon-button
           class="gui-mode-button"
           @click=${this.onToggleMode}
@@ -347,6 +347,10 @@ export class StandardCardTabsEditor extends LitElement implements LovelaceCardEd
     
     .card-toolbar :not(.spacer) {
       flex-grow: 0;
+    }
+
+    .card-toolbar .view-title {
+      margin-right: 1rem;
     }
   `;
 }
