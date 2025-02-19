@@ -11,11 +11,8 @@ import { getWindow } from './utils/get-window';
 import { loadHuiCardPicker } from './utils/load-hui-card-picker';
 import {
   mdiCodeBraces,
-  mdiContentCopy,
-  mdiContentCut,
   mdiDelete,
   mdiListBoxOutline,
-  mdiPlus,
   mdiChevronLeft,
   mdiChevronRight,
 } from "@mdi/js";
