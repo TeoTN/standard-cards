@@ -85,13 +85,16 @@ export class StdUiTabs extends LitElement {
 
     .tabs {
       display: flex;
-      justify-content: flex-start; /* Changed from center to flex-start */
+      justify-content: flex-start;
       overflow-x: auto;
+      overflow-y: hidden;
       scrollbar-width: none;
       position: relative;
       z-index: 1;
       gap: 0.5rem;
       max-width: 100%;
+      border-radius: inherit; /* Ensure the tabs container inherits the border radius */
+      clip-path: inset(0 round 1.5rem); /* Use clip-path to mask the indicator */
     }
 
     .tabs::-webkit-scrollbar {
