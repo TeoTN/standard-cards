@@ -21,13 +21,20 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Get Artifact Name
+        id: artifact
+        run: |
+          MAIN_FIELD=$(node -p "require('./package.json').main")
+          FILENAME=$(basename "$MAIN_FIELD" .ts)
+          echo "filename=$FILENAME" >> "$GITHUB_OUTPUT"
+
       - name: Install Dependencies
         run: yarn
 
       - name: Build
         run: yarn build
 
-      - name: Release Asset
+      - name: Release Artifacts
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/standard-card-tabs.js
+          files: dist/${{ steps.artifact.outputs.filename }}.js
