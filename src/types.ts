@@ -1,5 +1,5 @@
 import { ActionConfig, LovelaceCard, LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
-import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
+import { TABS_CARD_EDITOR_TAG_NAME } from './cards/tabs/constants';
 
 declare global {
   interface HTMLElementTagNameMap {

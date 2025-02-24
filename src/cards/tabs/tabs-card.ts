@@ -5,10 +5,10 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
 import { Tab, tabFormSchema, Tabs, TabsCardConfig, tabsCardConfigStruct } from './tabs-card.config';
 import { assert } from 'superstruct';
-import { getUniqueId } from './utils/get-unique-id';
-import { LovelaceCardHelpers } from './types';
-import { getWindow } from './utils/get-window';
-import { loadHuiCardPicker } from './utils/load-hui-card-picker';
+import { getUniqueId } from '../../utils/get-unique-id';
+import { LovelaceCardHelpers } from '../../types';
+import { getWindow } from '../../utils/get-window';
+import { loadHuiCardPicker } from '../../utils/load-hui-card-picker';
 import {
   mdiCodeBraces,
   mdiDelete,

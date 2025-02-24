@@ -1,18 +1,18 @@
 {
-  "name": "standard-card-tabs",
+  "name": "standard-cards",
   "version": "0.2.1",
-  "description": "Lovelace Standard Tabs Card",
+  "description": "Lovelace Standard Cards",
   "keywords": [
     "home-assistant",
     "homeassistant",
     "hass",
     "automation",
     "lovelace",
-    "custom-cards"
+    "standard-cards"
   ],
   "type": "module",
-  "main": "src/standard-card-tabs.ts",
-  "repository": "git@github.com:TeoTN/standard-card-tabs.git",
+  "main": "src/standard-cards.ts",
+  "repository": "git@github.com:TeoTN/standard-cards.git",
   "author": "Piotr Staniów",
   "license": "MIT",
   "dependencies": {

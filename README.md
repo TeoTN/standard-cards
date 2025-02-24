@@ -1,3 +1,9 @@
-# Standard Tabs Card
+# Standard Cards
 
-A custom card component for Home Assistant that provides a tabbed interface to switch between different views.
+A collection of custom card component for Home Assistant dashboards.
+
+## Overview
+
+### Tabs Card
+
+Provides a tabbed interface to switch between different views.

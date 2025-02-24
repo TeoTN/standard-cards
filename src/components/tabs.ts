@@ -1,7 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property, query, queryAll, queryAssignedElements } from 'lit/decorators.js';
 import { StdUiTab } from './tab';
-import { is } from 'superstruct';
 
 @customElement('std-ui-tabs')
 export class StdUiTabs extends LitElement {

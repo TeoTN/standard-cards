@@ -1,7 +1,7 @@
 import * as s from "superstruct";
 import type { Infer } from "superstruct";
 import { TABS_CARD_TAG_NAME } from "./constants";
-import { HaFormSchema } from "./utils/ha-form/ha-form";
+import { HaFormSchema } from "../../utils/ha-form/ha-form";
 
 export const lovelaceCardConfigStruct = s.object({
   index: s.optional(s.number()),

@@ -1,5 +1,5 @@
 import { version } from '../../package.json';
-import { TABS_CARD_NAME } from '../constants';
+import { TABS_CARD_NAME } from '../cards/tabs/constants';
 
 export const printVersion = (): void => {
   console.info(

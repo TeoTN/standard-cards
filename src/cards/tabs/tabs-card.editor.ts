@@ -6,16 +6,18 @@ import {
 } from 'custom-card-helpers';
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { TABS_CARD_EDITOR_TAG_NAME, TABS_CARD_NAME, TABS_CARD_TAG_NAME } from './constants';
-import { localize } from './localize/localize';
+import { TABS_CARD_NAME } from './constants';
+import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
+import { TABS_CARD_TAG_NAME } from './constants';
+import { localize } from '../../localize/localize';
 import { getInitialConfig, Tab, TabsCardConfig } from './tabs-card.config';
-import { getWindow } from './utils/get-window';
-import { registerCustomCard } from './utils/register-card';
-import { LovelaceCardHelpers } from './types';
-import { printVersion } from './utils/print-version';
-import { getDeferred } from './utils/get-deferred';
-import './components/tabs';
-import './components/tab';
+import { getWindow } from '../../utils/get-window';
+import { registerCustomCard } from '../../utils/register-card';
+import { LovelaceCardHelpers } from '../../types';
+import { printVersion } from '../../utils/print-version';
+import { getDeferred } from '../../utils/get-deferred';
+import '../../components/tabs';
+import '../../components/tab';
 
 printVersion();
 
@@ -72,7 +74,7 @@ export class StandardCardTabs extends LitElement {
   @state() private selectedTabIndex = 0;
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import('./standard-card-tabs.editor.js');
+    await import('../../standard-card-tabs.editor.js');
     return document.createElement(TABS_CARD_EDITOR_TAG_NAME) as LovelaceCardEditor;
   }
 
