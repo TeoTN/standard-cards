@@ -1,239 +1,364 @@
-import {
-  getLovelace,
-  HomeAssistant,
-  LovelaceCard,
-  LovelaceCardEditor
-} from 'custom-card-helpers';
-import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { TABS_CARD_NAME } from './constants';
+import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
+import { HomeAssistant, LovelaceCardEditor, LovelaceConfig } from 'custom-card-helpers';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import { TABS_CARD_EDITOR_TAG_NAME } from './constants';
-import { TABS_CARD_TAG_NAME } from './constants';
-import { localize } from '../../localize/localize';
-import { getInitialConfig, Tab, TabsCardConfig } from './tabs-card.config';
-import { getWindow } from '../../utils/get-window';
-import { registerCustomCard } from '../../utils/register-card';
+import { Tab, tabFormSchema, Tabs, TabsCardConfig, tabsCardConfigStruct } from './tabs-card.config';
+import { assert } from 'superstruct';
+import { getUniqueId } from '../../utils/get-unique-id';
 import { LovelaceCardHelpers } from '../../types';
-import { printVersion } from '../../utils/print-version';
-import { getDeferred } from '../../utils/get-deferred';
-import '../../components/tabs';
-import '../../components/tab';
+import { getWindow } from '../../utils/get-window';
+import { loadHuiCardPicker } from '../../utils/load-hui-card-picker';
+import {
+  mdiCodeBraces,
+  mdiDelete,
+  mdiListBoxOutline,
+  mdiChevronLeft,
+  mdiChevronRight,
+} from "@mdi/js";
 
-printVersion();
+@customElement(TABS_CARD_EDITOR_TAG_NAME)
+export class StandardCardTabsEditor extends LitElement implements LovelaceCardEditor {
+  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public lovelace?: LovelaceConfig;
 
-registerCustomCard({
-  type: TABS_CARD_TAG_NAME,
-  name: TABS_CARD_NAME,
-  description: "Use this card to display multiple tabs of different cards.",
-});
+  @state() private config?: TabsCardConfig;
+  @state() private initialized = false;
+  @state() private helpers?: LovelaceCardHelpers;
+  @state() private selectedTabIndex = -1;
+  @state() private guiMode = true;
+  @state() private guiModeAvailable? = true;
+  @state() private newTabSkeleton: Pick<Tab, 'id' | 'label'> = { id: getUniqueId(), label: `Tab 1` };
 
-const handleError = (error: Error) => {
-  console.error(error);
-};
-
-const waitUntil = <T>(getter: () => T, predicate: (value: T) => boolean): Promise<void> => {
-  const value = getter();
-  const { promise, resolve } = getDeferred<void>();
-  let interval = 0;
-  if (!predicate(value)) {
-    interval = window.setInterval(() => {
-      const value = getter();
-      if (predicate(value)) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 100);
-  } else {
-    resolve();
-  }
-  return promise;
-};
-
-@customElement(TABS_CARD_TAG_NAME)
-export class StandardCardTabs extends LitElement {
-  // TODO Add any properities that should cause your element to re-render here
-  // https://lit.dev/docs/components/properties/
-  private _hass?: HomeAssistant;
-
-  @property({ attribute: false })
-  public get hass(): HomeAssistant {
-    return this._hass!;
-  }
-
-  public set hass(value: HomeAssistant) {
-    this._hass = value;
-    // Update all child cards when hass changes
-    Object.values(this.cardElements).forEach((card) => {
-      card.hass = value;
-    });
-  }
-
-  @state() private cardElements: Record<string, LovelaceCard> = {};
-  @state() private helpers: LovelaceCardHelpers | null = null;
-  @state() private config: TabsCardConfig = getInitialConfig();
-  @state() private selectedTabIndex = 0;
-
-  public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import('../../standard-card-tabs.editor.js');
-    return document.createElement(TABS_CARD_EDITOR_TAG_NAME) as LovelaceCardEditor;
-  }
-
-  public static getStubConfig(): TabsCardConfig {
-    return getInitialConfig();
-  }
-
-  // https://lit.dev/docs/components/properties/#accessors-custom
-  public setConfig(config: TabsCardConfig): void {
-    // TODO Check for required fields and that they are of the proper format
-    if (!config) {
-      throw new Error(localize('common.invalid_configuration'));
-    }
-
-    if (config.test_gui) {
-      getLovelace().setEditMode(true);
-    }
-
-    this.config = config;
-  }
+  @query("hui-card-element-editor") protected cardEditorEl?: HTMLElement;
 
   public connectedCallback() {
     super.connectedCallback();
-    if (this.helpers) {
+    if (this.initialized) {
       return;
     }
 
-    getWindow().loadCardHelpers().then(helpers => {
-      this.helpers = helpers;
-      if (!customElements.get("mwc-tab-bar")) {
-        // Trick to import `mwc-tab-bar` and `mwc-bar` without build tools shenanigans
-        helpers.importMoreInfoControl("weather")
-      }
+    this.initialize().then(() => {
+      this.initialized = true;
     });
   }
 
-  protected firstUpdated() {
-    const currentTab = this.config.tabs[this.selectedTabIndex];
-    if (!currentTab) {
-      return;
-    }
-    this.prepareCardElement(currentTab).catch(handleError);
+  private async initialize() {
+    const helpers = await getWindow().loadCardHelpers();
+    this.helpers = helpers;
+    await loadHuiCardPicker(this.helpers);
+    this.initialized = true;
   }
 
-  // https://lit.dev/docs/components/rendering/
+  public setConfig(config: TabsCardConfig): void {
+    assert(config, tabsCardConfigStruct);
+    this.config = config;
+  }
+
+  get _show_warning(): boolean {
+    return this.config?.show_warning || false;
+  }
+
+  get _show_error(): boolean {
+    return this.config?.show_error || false;
+  }
+
   protected render(): TemplateResult {
-    if (this.config.show_warning) {
-      return this._showWarning(localize('common.show_warning'));
+    if (!this.hass || !this.initialize) {
+      return html``;
     }
-
-    if (this.config.show_error) {
-      return this._showError(localize('common.show_error'));
-    }
-
-    const { tabs = [] } = this.config;
-    const activeTab = tabs[this.selectedTabIndex];
-    const currentCard = activeTab ? this.cardElements[activeTab.id] : null;
 
     return html`
-      <div class="card-content">
-        ${this.toolbarTemplate(tabs)}
-        ${currentCard ? html`
-          <div class="tab-body">
-            ${currentCard}
-          </div>
-        ` : nothing}
+      <div class="standard-card-tabs-editor">
+        ${this.toolbarTemplate()}
+        <div class="editor">
+          ${this.editorTemplate()}
+        </div>
       </div>
     `;
   }
 
-  private toolbarTemplate(tabs: ReadonlyArray<Tab>): TemplateResult {
+  protected toolbarTemplate(): TemplateResult {
+    const tabs: Tabs = this.config?.tabs ?? [];
     return html`
-      <std-ui-tabs
-        .activeIndex=${this.selectedTabIndex}
-        @selected=${this.onTabActivated}
-      >
-        ${tabs.map((tab) => html`
-          <std-ui-tab>${tab.label}</std-ui-tab>
-        `)}
-      </std-ui-tabs>
+      <div class="toolbar">
+        <paper-tabs
+          .selected=${this.selectedTabIndex}
+          @selected-changed=${this.onSelectedTabChanged}
+        >
+          ${tabs.map(({ label }, index) => html`
+            <paper-tab>
+              ${index + 1}. ${label}
+            </paper-tab>
+          `)}
+          <paper-tab id="add-tab">
+            <ha-icon icon="mdi:plus"></ha-icon>
+          </paper-tab>
+        </paper-tabs>
+      </div>
     `;
   }
 
-  private onTabActivated(e: CustomEvent) {
-    const index = e.detail.index;
-    this.selectedTabIndex = index;
-    const currentTab = this.config.tabs[this.selectedTabIndex];
-    if (!currentTab) {
-      return;
+  protected editorTemplate(): TemplateResult {
+    const tabs: Tabs = this.config?.tabs ?? [];
+    if (this.selectedTabIndex === tabs.length) {
+      return this.addTabTemplate();
+    } else if (this.selectedTabIndex >= 0 && this.selectedTabIndex < tabs.length) {
+      return this.editTabTemplate(tabs[this.selectedTabIndex]);
+    } else {
+      return html`
+        <div id="no-tab-selected">
+          Select a tab to edit or click + to add a new one
+        </div>
+      `;
     }
-    this.prepareCardElement(currentTab).catch(handleError);
   }
 
-  private async prepareCardElement(tab: Tab): Promise<void> {
-    await waitUntil(() => this.helpers, (helpers) => helpers !== null);
-    if (!tab.id) {
-      throw new Error("Tab has no id");
+  protected addTabTemplate(): TemplateResult {
+    const tabs: Tabs = this.config?.tabs ?? [];
+    const index = tabs.length;
+
+    const huiCardPicker = customElements.get("hui-card-picker");
+    if (!huiCardPicker) {
+      console.warn("hui-card-picker is not defined")
     }
-    if (this.cardElements[tab.id]) {
-      return;
-    }
 
-    const element = await this.helpers!.createCardElement(tab.card);
-    if (!element) {
-      throw new Error("Failed to create card element");
-    }
-    element.hass = this.hass;
-    this.cardElements[tab.id] = element;
-    this.requestUpdate();
-  }
-
-  private _showWarning(warning: string): TemplateResult {
-    return html` <hui-warning>${warning}</hui-warning> `;
-  }
-
-  private _showError(error: string): TemplateResult {
-    const errorCard = document.createElement('hui-error-card');
-    errorCard.setConfig({
-      type: 'error',
-      error,
-      origConfig: this.config,
-    });
-
-    return html` ${errorCard} `;
-  }
-
-  // https://lit.dev/docs/components/styles/
-  static get styles(): CSSResultGroup {
-    return css`
-      .card-content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        max-width: 100%;
-        max-height: 100%;
-        overflow: hidden;
-      }
-
-      .tab-body {
-        width: 100%;
-      }
+    return html`
+      ${this.cardToolbarTemplate('New Tab')}
+      <ha-form
+        .hass=${this.hass}
+        .data=${this.newTabSkeleton}
+        .schema=${tabFormSchema}
+        .computeLabel=${this.computeFormLabelCallback}
+        @value-changed=${this.onTabFormValueChanged}
+      ></ha-form>
+      <div class="card-config">
+        <hui-card-picker
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          @config-changed=${e => this.onTabCardChanged(e, index)}
+        ></hui-card-picker>
+      </div>
     `;
   }
 
-  public async getGridOptions() {
-    const size = await this.getCardSize();
-    return {
-      columns: 'full',
-      rows: size,
+  protected editTabTemplate(tab: Tab): TemplateResult {
+    return html`
+      ${this.cardToolbarTemplate('Edit Tab')}
+      <ha-form
+        .hass=${this.hass}
+        .data=${tab}
+        .schema=${tabFormSchema}
+        .computeLabel=${this.computeFormLabelCallback}
+        @value-changed=${this.onTabFormValueChanged}
+      ></ha-form>
+      <div class="card-config">
+        <hui-card-element-editor
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          .value=${tab.card}
+          .GUImode=${this.guiMode}
+          @GUImode-changed=${this.onGuiModeChanged}
+          @config-changed=${e => this.onTabCardChanged(e, this.selectedTabIndex)}
+        ></hui-card-element-editor>
+      </div>  
+    `;
+  }
+
+  protected cardToolbarTemplate(title: string): TemplateResult {
+    const tabs = this.config?.tabs ?? [];
+    const showMoveButtons = tabs.length > 1 && this.selectedTabIndex >= 0 && this.selectedTabIndex < tabs.length;
+
+    return html`
+      <div class="card-toolbar">
+        <h3 class="view-title">${title}</h3>
+        <ha-icon-button
+          class="gui-mode-button"
+          @click=${this.onToggleMode}
+          .disabled=${!this.guiModeAvailable}
+          .label=${this.hass!.localize(
+      this.guiMode
+        ? "ui.panel.lovelace.editor.edit_card.show_code_editor"
+        : "ui.panel.lovelace.editor.edit_card.show_visual_editor"
+    )}
+          .path=${this.guiMode ? mdiCodeBraces : mdiListBoxOutline}
+        ></ha-icon-button>
+        <div class="spacer"></div>
+        ${showMoveButtons ? html`
+          <ha-icon-button
+            class="move-left-button"
+            @click=${this.onMoveTabLeft}
+            .label="Move tab left"
+            .path=${mdiChevronLeft}
+          ></ha-icon-button>
+          <ha-icon-button
+            class="move-right-button"
+            @click=${this.onMoveTabRight}
+            .label="Move tab right"
+            .path=${mdiChevronRight}
+          ></ha-icon-button>
+        ` : ''}
+        <ha-icon-button
+          class="remove-tab-button"
+          @click=${this.onRemoveTab}
+          .label=${this.hass!.localize(
+      "ui.panel.lovelace.editor.edit_card.delete"
+    )}
+          .path=${mdiDelete}
+        ></ha-icon-button>
+      </div>
+    `;
+  }
+
+  private onMoveTabLeft(): void {
+    if (!this.config || this.selectedTabIndex < 0) return;
+
+    const tabs = [...this.config.tabs];
+    const newIndex = this.selectedTabIndex === 0 ? tabs.length - 1 : this.selectedTabIndex - 1;
+    const tab = tabs[this.selectedTabIndex];
+
+    tabs.splice(this.selectedTabIndex, 1);
+    tabs.splice(newIndex, 0, tab);
+
+    this.config = { ...this.config, tabs };
+    this.selectedTabIndex = newIndex;
+    this.notifyConfigChanged();
+  }
+
+  private onMoveTabRight(): void {
+    if (!this.config || this.selectedTabIndex < 0) return;
+
+    const tabs = [...this.config.tabs];
+    const newIndex = this.selectedTabIndex === tabs.length - 1 ? 0 : this.selectedTabIndex + 1;
+    const tab = tabs[this.selectedTabIndex];
+
+    tabs.splice(this.selectedTabIndex, 1);
+    tabs.splice(newIndex, 0, tab);
+
+    this.config = { ...this.config, tabs };
+    this.selectedTabIndex = newIndex;
+    this.notifyConfigChanged();
+  }
+
+  protected onToggleMode(): void {
+    this.guiMode = !this.guiMode;
+  }
+
+  protected computeFormLabelCallback = (schema: { name: string }): string =>
+    this.hass!.localize(`ui.panel.lovelace.editor.card.tabs.${schema.name}`);
+
+  private onSelectedTabChanged(ev: CustomEvent): void {
+    if (typeof ev.detail.value !== 'number') {
+      return;
+    }
+    const tabs = this.config?.tabs ?? [];
+    if (ev.detail.value === tabs.length) {
+      this.newTabSkeleton = { id: getUniqueId(), label: `Tab ${tabs.length + 1}` };
+    }
+    this.selectedTabIndex = ev.detail.value;
+  }
+
+  protected onTabFormValueChanged(ev: CustomEvent): void {
+    if (!this.config || ev.detail.value === undefined) return;
+
+    if (this.selectedTabIndex === this.config.tabs.length) {
+      // We're editing a new tab, update the skeleton
+      this.newTabSkeleton = {
+        ...this.newTabSkeleton,
+        ...ev.detail.value
+      };
+      return;
+    }
+
+    const tabs = [...this.config.tabs];
+    tabs[this.selectedTabIndex] = {
+      ...tabs[this.selectedTabIndex],
+      ...ev.detail.value
     };
+
+    this.config = {
+      ...this.config,
+      tabs
+    };
+
+    this.notifyConfigChanged();
   }
 
-  public async getCardSize(): Promise<number> {
-    const TAB_BAR_HEIGHT = 2;
-    const activeTab = this.config.tabs[this.selectedTabIndex];
-    const currentCard = activeTab ? this.cardElements[activeTab.id] : null;
-    const cardSize = currentCard && 'getCardSize' in currentCard
-      ? (await currentCard.getCardSize?.()) ?? 1
-      : 1;
-    return TAB_BAR_HEIGHT + cardSize;
+  protected onTabCardChanged(ev: CustomEvent, index: number): void {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    if (!this.config) return;
+
+    const tabs = [...this.config.tabs];
+    const isNewCard = index === tabs.length;
+
+    if (isNewCard) {
+      // Create new tab using the current newTabSkeleton values
+      tabs.push({ ...this.newTabSkeleton, card: ev.detail.config });
+    } else {
+      tabs[index] = { ...tabs[index], card: ev.detail.config };
+    }
+
+    this.guiModeAvailable = ev.detail.guiModeAvailable;
+    this.selectedTabIndex = index;
+    this.config = { ...this.config, tabs };
+    this.notifyConfigChanged();
   }
+
+  private onRemoveTab(): void {
+    const { tabs = [] } = this.config || { tabs: [] };
+    if (tabs.length === 0) {
+      return;
+    }
+
+    const updatedTabs = [...tabs];
+    updatedTabs.splice(this.selectedTabIndex, 1);
+
+    this.config = { ...this.config!, tabs: updatedTabs };
+    this.selectedTabIndex = -1;
+    this.newTabSkeleton = { id: getUniqueId(), label: `Tab ${updatedTabs.length + 1}` };
+
+    this.notifyConfigChanged();
+  }
+
+  private onGuiModeChanged(ev: CustomEvent): void {
+    ev.stopPropagation();
+    this.guiMode = ev.detail.guiMode;
+    this.guiModeAvailable = ev.detail.guiModeAvailable;
+  }
+
+  private notifyConfigChanged(): void {
+    this.dispatchEvent(new CustomEvent('config-changed', {
+      detail: { config: this.config },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  static styles: CSSResultGroup = css`
+    .standard-card-tabs-editor,
+    .standard-card-tabs-editor .editor {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-toolbar {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    
+    .card-toolbar .spacer {
+      flex-grow: 1;
+    }
+    
+    .card-toolbar :not(.spacer) {
+      flex-grow: 0;
+    }
+
+    .card-toolbar .view-title {
+      margin-right: 1rem;
+    }
+  `;
 }

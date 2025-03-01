@@ -1,1 +1,1 @@
-import './cards/tabs/tabs-card';
+import './cards/tabs/tabs-card.card';
